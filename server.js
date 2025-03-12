@@ -6,16 +6,16 @@ const bodyParser = require("body-parser");
 const app = express();
 app.use(bodyParser.json());
 
-
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
-  ssl: { 
-    rejectUnauthorized: false
-}
+  //   ssl: {
+  //     rejectUnauthorized: false    //for development
+  // }
+  ssl: { rejectUnauthorized: true },
 });
 db.connect((err) => {
   if (err) {
@@ -42,7 +42,6 @@ app.post("/addSchool", (req, res) => {
   });
 });
 
-
 app.get("/listSchools", (req, res) => {
   const { latitude, longitude } = req.query;
 
@@ -59,9 +58,8 @@ app.get("/listSchools", (req, res) => {
   db.query(sql, (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
 
- 
     results.forEach((school) => {
-      const R = 6371; 
+      const R = 6371;
       const dLat = (school.latitude - userLat) * (Math.PI / 180);
       const dLon = (school.longitude - userLon) * (Math.PI / 180);
       const a =
